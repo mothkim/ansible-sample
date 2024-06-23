@@ -1,0 +1,7 @@
+Match Group {{ item }}
+  ChrootDirectory /home/sftp/{{ item }}_sftp/jail_root
+  PasswordAuthentication yes
+  AllowTCPForwarding no
+  AllowAgentForwarding no
+  X11Forwarding no
+  ForceCommand internal-sftp

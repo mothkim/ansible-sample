@@ -1,0 +1,45 @@
+---
+all:
+  hosts:
+    chm-lazada-ssh.bifrost.asia:
+    192.168.0.66:
+    192.168.0.2:
+    202.94.250.219:
+    202.94.250.220:
+  children:
+    apps:
+      hosts:
+        chm-lazada-ssh.bifrost.asia:
+    apps-lex-uat:
+      hosts:
+        192.168.0.130:
+        # 202.94.250.219:
+    apps-laz-uat:
+      hosts:
+        192.168.0.194:
+        # 202.94.250.220:
+    sftp:
+      hosts:
+        192.168.0.2:
+    db:
+      hosts:
+        192.168.0.66:
+        
+    db_prod:
+      hosts:
+        192.168.10.66:
+    apps-lex-prod:
+      hosts:
+        # 192.168.10.130:
+        202.94.250.232:
+    apps-laz-prod:
+      hosts:
+        # 192.168.10.194:
+        202.94.250.233:
+
+    # nginx:
+    #   hosts:
+    #     DTD-Msign-Proxy:
+    #     DTD-Msign-Proxy-DR:
+
+      

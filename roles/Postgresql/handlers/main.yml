@@ -1,0 +1,8 @@
+---
+# handlers file for postgresql
+- name: restart postgresql services
+  systemd:
+    name: postgresql
+    state: restarted
+    enabled: true
+  listen: "restart postgresql services"

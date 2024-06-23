@@ -1,0 +1,49 @@
+---
+# tasks file for sftp
+
+- name: change sftp configuration
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Subsystem.*sftp'
+    line: Subsystem   sftp   internal-sftp
+  
+
+- name: create sftp group
+  block:
+    - name: create sftp group
+      group:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ sftp['group']['name'] }}"
+    - name: create sftp group jail root
+      file:
+        path: "/home/sftp/{{ item }}/jail_root"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+        recurse: yes
+      loop: "{{ sftp['group']['name'] }}"
+    - name: add chroot specific configuration
+      blockinfile:
+        block: "{{ lookup('template', 'sshd_config.j2') }}"
+        path: /etc/ssh/sshd_config
+        marker_begin: "{{ item }}"
+        create: no
+        backup: yes
+      loop: "{{ sftp['group']['name'] }}"
+  when: sftp['group']['create_group'] == true
+  notify: "restart sshd services"
+
+- name: create sftp user
+  user:
+    name: "{{ item.key }}"
+    group: "{{ item.value.group_of }}"
+    shell: /usr/sbin/nologin
+    create_home: yes
+    home: "/home/sftp/{{ item.value.group_of }}_sftp/{{ item.key }}_home"
+    state: present
+    password: "{{ item.value.password | password_hash('sha512') }}"
+  loop: "{{ sftp['user'] | dict2items }}"
+  when: sftp['user']['create_user'] == true
+  notify: "restart sshd services"

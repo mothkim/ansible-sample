@@ -1,0 +1,43 @@
+---
+# tasks file for postgresql
+- name: Create the file repository configuration
+  shell:
+    cmd: "{{ item }}"
+  loop:
+    - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    - sh -c 'wget --quiet -O - "https://www.postgresql.org/media/keys/ACCC4CF8.asc" | sudo apt-key add -'
+  
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop: "{{ installed_packages }}"
+
+- name: add configuration file in conf.d
+  blockinfile:
+    block: "{{ lookup('file', '{{ postgres_config }}') }}"
+    path: /etc/postgresql/15/main/conf.d/{{ postgres_config }}
+    create: true
+  notify: "restart postgresql services"
+
+
+- name: appending the content of pg_hba.conf
+  lineinfile:
+    path: /etc/postgresql/15/main/pg_hba.conf
+    line: "{{ item }}"
+  loop:
+  - "host all  all  0.0.0.0/0  scram-sha-256"
+
+- name: Flush handlers
+  meta: flush_handlers
+
+
+- name: change postgres user password
+  become: true
+  become_method: sudo
+  become_user: postgres
+  postgresql_user:
+    name: "postgres"
+    password: "{{ database['postgres_user_password'] }}"
+    fail_on_user: false
+  notify: "restart postgresql services"

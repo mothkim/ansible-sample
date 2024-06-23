@@ -1,0 +1,60 @@
+---
+# tasks file for app_hosts
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop: "{{ installed_packages }}"
+
+- name: install python modules
+  pip:
+    name: "{{ item }}"
+  loop: "{{ installed_modules }}"
+
+- name: Add Docker's official GPG key
+  shell:
+    cmd: "{{ item }}"
+  loop:
+  - 'install -m 0755 -d /etc/apt/keyrings'
+  - 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
+  - 'chmod a+r /etc/apt/keyrings/docker.gpg'
+
+- name: set up the Docker's repository
+  shell:
+    cmd: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    executable: /bin/bash
+
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop: "{{ docker_packages }}"
+
+- name: "appending the group 'docker' to the user's groups"
+  user:
+    name: ansible
+    groups: docker
+    append: yes
+  notify: "restart docker services"
+
+- name: initialize bash
+  shell:
+    cmd: sudo chsh ansible -s /bin/bash
+    executable: /bin/bash
+
+- name: initialize .docker directory
+  file:
+    path: /home/ansible/.docker
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: '0755'
+
+# - name: set DNS in /etc/resolv.conf
+#   copy:
+#     dest: /etc/resolv.conf
+#     content: |
+#       nameserver 8.8.8.8
+#       nameserver 10.255.1.180
+#     owner: root
+#   shell: systemctl restart resolvconf.service && systemctl restart systemd-resolved.service

@@ -1,0 +1,58 @@
+---
+# vars file for app_hosts
+installed_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - python3-pip
+
+installed_modules:
+  - docker==6.1.3
+  - docker-compose
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+ecr_images:
+  - 252322529613.dkr.ecr.ap-southeast-1.amazonaws.com/lazada/host2host
+
+docker_compose:
+  dev:
+    - docker-compose.dev.yml
+    - .env.dev
+  laz_uat:
+    - docker-compose.laz_uat.yml
+    - .env.laz_uat
+  lex_uat:
+    - docker-compose.lex_uat.yml
+    - .env.lex_uat
+  laz_prod:
+    - docker-compose.laz_prod.yml
+    - .env.laz_prod
+  lex_prod:
+    - docker-compose.lex_prod.yml
+    - .env.lex_prod
+
+docker_compose_dev_files:
+  - docker-compose.dev.yml
+  - .env.dev
+
+docker_compose_laz_uat_files:
+  - docker-compose.laz_uat.yml
+  - .env.laz_uat
+
+docker_compose_lex_uat_files:
+  - docker-compose.lex_uat.yml
+  - .env.lex_uat
+
+docker_compose_laz_prod_files:
+  - docker-compose.laz_prod.yml
+  - .env.laz_prod
+
+docker_compose_lex_prod_files:
+  - docker-compose.lex_prod.yml
+  - .env.lex_prod

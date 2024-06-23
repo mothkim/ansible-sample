@@ -1,0 +1,13 @@
+---
+# vars file for sftp in these format
+
+# sftp:
+#   user:
+#       create_user: bool
+#     developer: 
+#       password: string
+#       group_of: string
+#       home: string
+#   group:
+#       create_group: bool
+#       name: [string]

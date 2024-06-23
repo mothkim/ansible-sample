@@ -1,0 +1,22 @@
+---
+all:
+  hosts:
+    chm-lazada-ssh.bifrost.asia:
+    202.94.250.219:
+    202.94.250.220:
+  children:
+    apps:
+      hosts:
+        chm-lazada-ssh.bifrost.asia:
+    apps-lex-uat:
+      hosts:
+        202.94.250.219:
+    apps-laz-uat:
+      hosts:
+        202.94.250.220:
+    apps-lex-prod:
+      hosts:
+        202.94.250.232:
+    apps-laz-prod:
+      hosts:
+        202.94.250.233:

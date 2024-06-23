@@ -1,0 +1,13 @@
+---
+# vars file for postgresql
+database:
+  postgres_user_password: mchNjNXG8RTDaa5
+
+
+installed_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - libpq-dev
+  - python3-psycopg2
+  - postgresql-15

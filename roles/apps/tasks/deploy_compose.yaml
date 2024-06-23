@@ -1,0 +1,157 @@
+---
+- name: copy ECR token to host 
+  copy:
+    src: /home/ubuntu/.docker/config.json
+    dest: /home/ansible/.docker/config.json
+    owner: ansible
+    group: ansible
+    mode: '0600'
+
+- name: pull the images
+  remote_user: ansible
+  become: false
+  shell:
+    cmd: docker pull "{{ item }}"
+  loop: 
+    - "{{ ecr_images[0] }}:{{ lookup('ansible.builtin.env', 'IMG_TAG') }}"
+
+- name: Tear down existing services
+  block:
+    - name: Tear down existing services
+      community.docker.docker_compose:
+        project_src: /home/ansible/host2host
+        state: absent
+        files: "{{ docker_compose[lookup('ansible.builtin.env', 'ENVIRONMENT')][0] }}"
+  ignore_errors: true
+
+- name: delete files if exists
+  block:
+    - name: search files
+      find:
+        paths: /home/ansible/host2host
+        hidden: true
+        recurse: true
+      register: searched_files
+    - name: delete files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ searched_files.files }}"
+  ignore_errors: true
+
+- name: create project directory
+  file:
+    path: /home/ansible/host2host
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: '0750'
+
+- name: copy docker-compose file to host
+  block:
+    - name: copy docker-compose file to host
+      copy:
+        src: "{{ item }}"
+        dest: "/home/ansible/host2host/{{ item }}"
+        owner: ansible
+        group: ansible
+        mode: '0600'
+      loop: "{{ docker_compose[lookup('ansible.builtin.env', 'ENVIRONMENT')] }}"
+
+- name: Create and start services
+  become: false
+  block:
+    # - name: Create and start services dev
+    #   community.docker.docker_compose:
+    #     project_src: /home/ansible/host2host
+    #     project_name: host2host
+    #     pull: true
+    #     files: "{{ docker_compose_dev_files[0] }}"
+    #     build: false
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'dev'"
+    #   register: output_dev
+    # - name: Create and start services laz_uat
+    #   community.docker.docker_compose:
+    #     project_src: /home/ansible/host2host
+    #     project_name: host2host
+    #     pull: true
+    #     files: "{{ docker_compose_laz_uat_files[0] }}"
+    #     build: false  
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'laz_uat'"
+    #   register: output_laz_uat
+    # - name: Create and start services lex_uat
+    #   community.docker.docker_compose:
+    #     project_src: /home/ansible/host2host
+    #     project_name: host2host
+    #     pull: true
+    #     files: "{{ docker_compose_lex_uat_files[0] }}"
+    #     build: false  
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'lex_uat'"
+    #   register: output_lex_uat
+    - name: Create and start services
+      environment:
+        IMG_TAG: "{{ lookup('ansible.builtin.env', 'IMG_TAG') }}"
+      community.docker.docker_compose:
+        project_src: /home/ansible/host2host
+        project_name: host2host
+        pull: true
+        files: "{{ docker_compose[lookup('ansible.builtin.env', 'ENVIRONMENT')][0] }}"
+        build: false
+      register: output
+
+- name: Show results
+  block:
+    # - name: Show results dev
+    #   ansible.builtin.debug:
+    #     var: output_dev
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'dev'"
+    # - name: Show results laz_uat
+    #   ansible.builtin.debug:
+    #     var: output_laz_uat
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'laz_uat'"
+    # - name: Show results lex_uat
+    #   ansible.builtin.debug:
+    #     var: output_lex_uat
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'lex_uat'"
+    - name: Show results
+      ansible.builtin.debug:
+        var: output
+
+
+- name: Verify that app services are running
+  block:
+    # - name: Verify that app services are running dev
+    #   ansible.builtin.assert:
+    #     that:
+    #       - "output_dev.services.rabbitmq.host2host_rabbitmq_1.state.running"
+    #       - "output_dev.services.backend.host2host_backend_1.state.running"
+    #       - "output_dev.services.queue_default.host2host_queue_default_1.state.running"
+    #       - "output_dev.services.celery_flower.host2host_celery_flower_1.state.running"
+    #       - "output_dev.services.nginx_manager.host2host_nginx_manager_1.state.running"
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'dev'"
+    # - name: Verify that app services are running laz_uat
+    #   ansible.builtin.assert:
+    #     that:
+    #       - "output_laz_uat.services.rabbitmq.host2host_rabbitmq_1.state.running"
+    #       - "output_laz_uat.services.backend.host2host_backend_1.state.running"
+    #       - "output_laz_uat.services.queue_default.host2host_queue_default_1.state.running"
+    #       - "output_laz_uat.services.celery_flower.host2host_celery_flower_1.state.running"
+    #       - "output_laz_uat.services.nginx_manager.host2host_nginx_manager_1.state.running"
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'laz_uat'"
+    # - name: Verify that app services are running lex_uat
+    #   ansible.builtin.assert:
+    #     that:
+    #       - "output_lex_uat.services.rabbitmq.host2host_rabbitmq_1.state.running"
+    #       - "output_lex_uat.services.backend.host2host_backend_1.state.running"
+    #       - "output_lex_uat.services.queue_default.host2host_queue_default_1.state.running"
+    #       - "output_lex_uat.services.celery_flower.host2host_celery_flower_1.state.running"
+    #       - "output_lex_uat.services.nginx_manager.host2host_nginx_manager_1.state.running"
+    #   when: "'{{ lookup('ansible.builtin.env', 'ENVIRONMENT') }}' == 'lex_uat'"
+    - name: Verify that app services are running
+      ansible.builtin.assert:
+        that:
+          - "output.services.rabbitmq.host2host_rabbitmq_1.state.running"
+          - "output.services.backend.host2host_backend_1.state.running"
+          - "output.services.queue_default.host2host_queue_default_1.state.running"
+          - "output.services.celery_flower.host2host_celery_flower_1.state.running"
+          - "output.services.nginx_manager.host2host_nginx_manager_1.state.running"
