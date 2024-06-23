@@ -73,10 +73,10 @@ network:
     enp0s3:
       dhcp4: false
       addresses:
-        - 192.168.0.203/24
+        - 192.0.0.2/24
       nameservers:
-        addresses: [192.168.0.1, 8.8.8.8, 1.1.1.1]
-      gateway4: 192.168.0.1
+        addresses: [192.0.0.1, 8.8.8.8, 1.1.1.1]
+      gateway4: 192.0.0.1
   version: 2
 ```
 
