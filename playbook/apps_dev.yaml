@@ -1,6 +1,0 @@
----
-- hosts: apps
-  name: application bootstrap
-  become: yes
-  roles:
-    - role: apps

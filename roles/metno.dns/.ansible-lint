@@ -1,5 +1,0 @@
-skip_list:
-  - no-handler
-  - command-instead-of-shell
-  - '305'
-  - role-name[path]

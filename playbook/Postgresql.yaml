@@ -1,9 +1,0 @@
----
-# database
-- hosts: db
-  name: db bootstrap
-  become: yes
-  roles:
-    - role: Postgresql
-      vars:
-        postgres_config: "postgresql_tuned_dev.conf"

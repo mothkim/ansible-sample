@@ -1,7 +1,0 @@
----
-# handlers file for sftp
-- name: restart sshd services
-  systemd:
-    name: sshd
-    state: restarted
-  listen: "restart sshd services"

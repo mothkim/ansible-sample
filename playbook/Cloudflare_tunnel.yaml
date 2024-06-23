@@ -1,8 +1,0 @@
----
-- hosts: apps
-  name: application bootstrap
-  become: yes
-  vars_files:
-    - ../Terraform/tf_ansible_vars_file.yaml
-  roles:
-    - Cloudflare_tunnel
